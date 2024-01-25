@@ -1,0 +1,247 @@
+<html>
+    <head>
+        <title>Fanfic Theater Reader</title>
+        <script src="text_parsing.js"></script>
+    </head>
+    <body>
+        <div id="sourcelink"></div>
+        <div class="wrapper">
+            <div id='chatlog' class='chatlog'></div>
+            <div id='clientListWrapper' class='clientListWrapper' >
+                <div class="clientListHeader">Client List</div>
+                <div class="clientList"></div>
+            </div>
+        </div>
+        <div class="instructions">
+            <p>Tip: Use the Left and Right arrow keys to navigate the selected paragraph up or down.</p>
+            <p><button onclick="openPasteModal()">Click to paste in a new fic</button></p>
+        </div>
+        <div class="viewingLink">
+            <p><a href="./bookmarklet.html">Handy Bookmarklet</a> <a href="./fanfic_viewer.html" target="_blank">Fanfic Viewing Page</a></p>
+        </div>
+        <div id="usernameModal" class="modalWrapper">
+            <div class="modal">
+                <div><form id="username_form">
+                    <input type="text" id="username_input" /> <button type="submit">Submit</button>
+                </form></div>
+                <p>Please enter a username.</p>
+            </div>
+        </div>
+        <div id="ficSubmitModal" class="modalWrapper hidden">
+            <div class="modal">
+                <form id="fic_paste_form" class="modalForm">
+                    <div>
+                        Paste fic text below:
+                    </div>
+                    <div>
+                        <textarea id="ficText"></textarea>
+                    </div>
+                    <div class="evenSpacedButtons"><button onclick="closePasteModal()">Cancel</button><button type="submit">Submit</button></div>
+                </form>
+            </div>
+        </div>
+    </body>
+    <script src="websocket_reader.js"></script>
+    <script>
+        const fic_paste_form = document.getElementById('fic_paste_form');
+        fic_paste_form.addEventListener('submit', submitFicText);
+        document.getElementById('username_form').addEventListener('submit', submitUsername);
+        fic_paste_form.addEventListener('paste', interceptFicPaste);
+    </script>
+</html>
+
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #1A1A1A;
+        color: #FFF;
+    }
+
+    h1, h2, h3 {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    a {
+        color: #25ddf5;
+    }
+
+    a:visited {
+        color: #8961ed;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    textarea {
+        width: 40vw;
+        height: 30vh;
+    }
+
+    .wrapper {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .chatlog {
+        font-family: Baskerville, "Baskerville Old Face", "Hoefler Text", Garamond, "Times New Roman", serif;
+        font-size: 18px;
+        max-height: 80vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background-color: #1A1A1A;
+        padding: 10px;
+        max-width: 65vw;
+        border: 3px solid #FFFFFF;
+        color: #000;
+    }
+
+    .chatlog > p {
+        padding: 5px 0 5px 0;
+    }
+
+    .clientListWrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        border: 3px solid #FFFFFF;
+        margin: 0 10px;
+        color: #000;
+    }
+
+    .clientListHeader {
+        background-color: #9caae6;
+        text-align: center;
+        padding: 10px;
+        font-size: 18px;
+        border-bottom: 1px solid #000;
+    }
+
+    .clientList {
+        padding: 10px;
+        max-height: 80vh;
+        max-width: 20vw;
+        text-align: center;
+        background-color: #1A1A52;
+    }
+
+    .clientName {
+        font-weight: bold;
+        margin: 9px 0px;
+        padding: 9px;
+        opacity: .8;
+        background-color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+    }
+
+    .evenSpacedButtons {
+        display: flex;
+        justify-content: space-evenly;
+        width: 100%;
+        margin: 10px 0 0 0;
+    }
+
+    .modalWrapper {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #212121;
+    }
+
+    .modal {
+        width: 50vw;
+        height: 50vh;
+        background-color: #c4c4c4;
+        color: #000;
+        font-size: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modalForm {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ficParagraph {
+        display: flex;
+        flex-direction: row;
+        margin: 0;
+    }
+
+    .ficParagraph img {
+        width: unset;
+        height: unset;
+        max-width: 58vw;
+        max-height: 30vh;
+    }
+
+    .alreadyReadP {
+        color: #7D7B7C;
+    }
+
+    .selectedP {
+        color: #F32877;
+        font-size: 20px;
+        margin-left: 45px;
+    }
+
+    .selectedP img {
+        max-height: 78vh;
+    }
+
+    .unreadP {
+        color: #B7B7B7;
+        font-size: 20px;
+    }
+
+    .p_selector {
+        min-width: 45px;
+        max-width: 45px;
+        display: flex;
+        justify-content: center;
+        cursor: pointer;
+        color: #363636;
+        font-size: 22px;
+    }
+
+    .p_selector:hover {
+        background-color: #1F1F1F;
+        color: #F32877;
+    }
+
+    .instructions {
+        text-align: center;
+    }
+
+    .viewingLink {
+        width: 100%;
+        text-align: right;
+        padding: 0 10%;
+        box-sizing: border-box;
+    }
+
+    .viewingLink > p > a {
+        margin: 0 5px 0 5px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+</style>

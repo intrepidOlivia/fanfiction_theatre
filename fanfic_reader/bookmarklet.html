@@ -1,0 +1,134 @@
+<html>
+<head>
+
+</head>
+<body>
+    <div><a href="javascript:(function() {        
+        'use strict';
+        const DOMAIN = '138.68.243.184';
+        /* const DOMAIN = 'localhost'; */
+        const PORT = 8080;  
+        const PATH = 'fanfic/fic_submit';  
+    
+        function getAmpLink(wattpadUrl) {
+            return wattpadUrl.replace('.com/', '.com/amp/');
+        }
+    
+        function submitToReader(text) {
+            const form = document.createElement('form');  
+            form.action = `http://${DOMAIN}:${PORT}/${PATH}`;  
+            form.method = 'post';  
+            form.hidden = true;  
+            const input = document.createElement('textarea');  
+            input.name = 'text';  
+            input.value = text;  
+            const sourceInput = document.createElement('input');  
+            sourceInput.name = 'source';  
+            sourceInput.value = document.URL;  
+            form.appendChild(input);  
+            form.appendChild(sourceInput);  
+            document.body.appendChild(form);  
+            form.submit();
+        }
+    
+        function retrieveAndSendText(ficDocument) {
+            const FIC_SOURCE_CONTAINER_MAP = {        
+                'fanfiction.net': '#storytextp',
+                'archiveofourown.org': '#workskin',
+                'wattpad.com': '.story-body-type',
+            };  
+    
+            let selector = null; 
+            const href = location.href;  
+    
+            Object.keys(FIC_SOURCE_CONTAINER_MAP).forEach(key => {        
+                if (href.includes(key)) {        
+                    selector = FIC_SOURCE_CONTAINER_MAP[key];  
+                }    
+            });
+            if (selector == null) {        
+                window.alert('Could not find proper selector for fic source. Please contact Misha for help.');  
+                return;  
+            }
+    
+            const container = ficDocument.querySelector(selector);  
+            const ficText = container.innerHTML;  
+            navigator.clipboard.writeText(ficText);  
+            submitToReader(ficText);
+        }
+    
+        if (location.href.includes('wattpad.com')) {
+            const iframe = document.createElement('iframe');
+            iframe.src = getAmpLink(window.location.href);
+            console.log('iframe.src:', iframe.src);
+            document.body.appendChild(iframe);
+    
+            iframe.onload = () => {
+                retrieveAndSendText(iframe.contentWindow.document);
+            };
+        } else {
+            retrieveAndSendText(document);
+        }
+    })();" class="bookmarkletLink" draggable="true">
+        Copy Fic Text (v0.5)
+    </a></div>
+    <div class="instructions">
+        <p>Instructions:</p> 
+        <p>1. Drag the button above into your bookmarks bar to save it as a bookmarklet. </p>
+        <p>2. Open up a fanfic at fanfiction.net or archiveofourown.org.</p>
+        <p>3. Click the bookmarklet. The fic's text will be copied with formatting intact. You can then paste it into <a href="fanfic_reader.html">Fanfiction Reader</a>.</p>
+        <div class="footnote">
+            Last updated 07 Jun 2023: Removed issue with whitespace by making form multi-line.
+        </div>
+    </div>
+</body>
+</html>
+
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-evenly;
+        background-color: #1A1A1A;
+        color: #FFF;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
+    .bookmarkletLink {
+        text-decoration: none;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        background-color: #bababa;
+        color: #000000;
+        padding: 8%;
+        border-radius: 15px;
+        border-style: double;
+        white-space: nowrap;
+        width: max-content;
+    }
+
+    .bookmarklet {
+
+    }
+
+    .footnote {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .instructions {
+        background-color: rgba(255, 255, 255, 0.75);
+        font-family:'Courier New', Courier, monospace;
+        padding: 1%;
+        color: #000;
+        width: 50vw;
+        height: 20vh;
+        overflow: auto;
+    }
+</style>
