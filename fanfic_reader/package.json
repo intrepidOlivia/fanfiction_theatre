@@ -1,0 +1,15 @@
+{
+  "name": "fanfic_reader",
+  "version": "1.0.0",
+  "description": "pages and utilities related to the fanfiction reader and viewer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "author": "poplopo",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "http-proxy": "^1.18.1",
+    "ws": "^8.16.0"
+  }
+}
