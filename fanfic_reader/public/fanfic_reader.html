@@ -2,6 +2,7 @@
     <head>
         <title>Fanfic Theater Reader</title>
         <script src="text_parsing.js"></script>
+        <script src="websocket_reader.js"></script>
     </head>
     <body>
         <div id="sourcelink"></div>
@@ -15,6 +16,9 @@
         <div class="instructions">
             <p>Tip: Use the Left and Right arrow keys to navigate the selected paragraph up or down.</p>
             <p><button onclick="openPasteModal()">Click to paste in a new fic</button></p>
+            <!-- This button clears the markedParagraphs array, but does not update the styles. Highlights will disappear when the reader updates -->
+            <p><button onclick="clearMarks()">Click to clear highlighted paragraghs</button></p>
+
         </div>
         <div class="viewingLink">
             <p><a href="./bookmarklet.html">Handy Bookmarklet</a> <a href="./fanfic_viewer.html" target="_blank">Fanfic Viewing Page</a></p>
@@ -41,7 +45,7 @@
             </div>
         </div>
     </body>
-    <script src="websocket_reader.js"></script>
+    
     <script>
         const fic_paste_form = document.getElementById('fic_paste_form');
         fic_paste_form.addEventListener('submit', submitFicText);
@@ -181,6 +185,7 @@
     .ficParagraph {
         display: flex;
         flex-direction: row;
+        padding-left: 4px;
         margin: 0;
     }
 
@@ -210,18 +215,45 @@
         font-size: 20px;
     }
 
+    .markedP {
+        border-left-style: solid;
+        border-width: 2px;
+        border-color: yellow;
+        border-radius: 5px;
+        padding-left: 2px;
+        background: rgba(191, 233, 56, 0.2);
+        text-shadow: 1px 1px 3px black;
+    }
+
+    .p_marker {
+        border: none;
+        min-width: 35px;
+        max-width: 35px;
+        display: inline-block;
+        justify-content: center;
+        background-color: rgba(191, 233, 56, 0.2);
+        color: #B7B7B7;
+        border-radius: 5px;
+        margin-left: 3px;
+        margin-right: 6px;
+    }
+
+    .p_marker:hover {
+        color: yellow;
+    }
+
     .p_selector {
-        min-width: 45px;
-        max-width: 45px;
+        min-width: 35px;
+        max-width: 35px;
         display: flex;
         justify-content: center;
         cursor: pointer;
         color: #363636;
         font-size: 22px;
+        margin-right: 10px;
     }
 
     .p_selector:hover {
-        background-color: #1F1F1F;
         color: #F32877;
     }
 
