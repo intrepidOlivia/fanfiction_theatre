@@ -19,6 +19,7 @@ socket.addEventListener('open', (openEvent) => {
     socket.send(JSON.stringify({ message: 'Connection opened.'}));
     window.addEventListener('keyup', submitChangedIndex);
     checkForLocalUsername();
+    checkForLocalMarkedParagraphs();
 });
 
 socket.addEventListener('message', (messageEvent) => {
@@ -190,6 +191,29 @@ function setRemoteUsername(username) {
 }
 
 /**
+ * Writes marked paragraph indices to localStorage in JSON format
+ * @param {Array} array
+ */
+function storeMarkedP(array) {
+    const myJSON = JSON.stringify(array);
+    window.localStorage.setItem('markedParagraphs', myJSON);
+    console.log('localStorage markedParagraphs:', localStorage.getItem('markedParagraphs'))
+}
+
+/**
+ * Checks if the user has marked paragraphs in localStorage, and loads them
+ * @returns 
+ */
+function checkForLocalMarkedParagraphs() {
+    if (window.localStorage.getItem('markedParagraphs')) {
+        markedDialogue = JSON.parse(window.localStorage.getItem('markedParagraphs'));
+        console.log('Local marked paragraph data found. markedDialogue array set. markedDialogue now:', markedDialogue);
+    } else {
+        return false;
+    }
+}
+
+/**
  * Checks if the user has already set a username in their browser, and registers that instead
  * @returns 
  */
@@ -239,20 +263,27 @@ function formatTextToParagraphs(htmlText, activeIndex) {
     return styleActiveAndInactiveParagraphs(paragraphs, activeIndex);
 }
 
+/**
+ * 
+ * @param {*} textSpan 
+ * @param {Number} index 
+ */
 function markParagraph(textSpan, index) {
     textSpan.classList.toggle('markedP');
-    if (markedDialogue.includes(index) == true) {
+    if (markedDialogue.includes(index)) {
         markedDialogue.splice(markedDialogue.indexOf(index), 1);
-        console.log('Paragraph at index', index, ' removed from markedDialogue[]');
+        console.log('Paragraph at index', index, 'removed from markedDialogue[]');
     } else {
         markedDialogue.push(index);
-        console.log('Paragraph at index', index, ' added to markedDialogue[]');
+        console.log('Paragraph at index', index, 'added to markedDialogue[]');
     }
-    console.log(markedDialogue);
+    storeMarkedP(markedDialogue);
+    console.log('markedDialogue[]:', markedDialogue);
 }
 
 function clearMarks() {
     markedDialogue.length = 0; 
+    
     // TODO: Update styles
 }
 /**
@@ -275,17 +306,19 @@ function styleActiveAndInactiveParagraphs(pHTMLStrings, activeIndex) {
             selectParagraphArrow.innerText = '>';
             paragraph.appendChild(selectParagraphArrow);
         }
+        // TODO: Create new function to remove redundancy in element creation
 
         const markDialogueButton = document.createElement('button');
         markDialogueButton.className = 'p_marker';
+        markDialogueButton.onclick = () => markParagraph(text, i);
         markDialogueButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-highlighter" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.096.644a2 2 0 0 1 2.791.036l1.433 1.433a2 2 0 0 1 .035 2.791l-.413.435-8.07 8.995a.5.5 0 0 1-.372.166h-3a.5.5 0 0 1-.234-.058l-.412.412A.5.5 0 0 1 2.5 15h-2a.5.5 0 0 1-.354-.854l1.412-1.412A.5.5 0 0 1 1.5 12.5v-3a.5.5 0 0 1 .166-.372l8.995-8.07zm-.115 1.47L2.727 9.52l3.753 3.753 7.406-8.254zm3.585 2.17.064-.068a1 1 0 0 0-.017-1.396L13.18 1.387a1 1 0 0 0-1.396-.018l-.068.065zM5.293 13.5 2.5 10.707v1.586L3.707 13.5z"/></svg>';
         paragraph.appendChild(markDialogueButton);
 
+        //Create a span in the webpage's HTML and set the text to current paragraph
         const text = document.createElement('span');
         text.innerHTML = p;
 
-        markDialogueButton.onclick = () => markParagraph(text, i);
-
+        //If the current index is included in markedDialogue[], add 'markedP' to the span's classes
        if (markedDialogue.includes(i)) {
             text.classList.add('markedP');
         }
