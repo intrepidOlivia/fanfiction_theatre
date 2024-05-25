@@ -212,6 +212,27 @@ function checkForLocalMarkedParagraphs() {
 }
 
 /**
+ * Writes marked paragraph indices to localStorage in JSON format
+ * @param {Array} array
+ */
+function storeMarkedP(array) {
+    const myJSON = JSON.stringify(array);
+    window.localStorage.setItem('markedParagraphs', myJSON);
+}
+
+/**
+ * Checks if the user has marked paragraphs in localStorage, and loads them
+ * @returns 
+ */
+function checkForLocalMarkedParagraphs() {
+    if (window.localStorage.getItem('markedParagraphs')) {
+        markedDialogue = JSON.parse(window.localStorage.getItem('markedParagraphs'));
+    } else {
+        return false;
+    }
+}
+
+/**
  * Checks if the user has already set a username in their browser, and registers that instead
  * @returns 
  */
@@ -273,6 +294,7 @@ function markParagraph(textSpan, index) {
     } else {
         markedDialogue.push(index);
     }
+    storeMarkedP(markedDialogue);
     storeMarkedP(markedDialogue);
 }
 
