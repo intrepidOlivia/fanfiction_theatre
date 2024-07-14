@@ -27,7 +27,7 @@ const MESSAGE_STRUCTURE = {
 };
 
 // DEBUG - READ SAMPLE TEXT
-const readStream = fs.createReadStream('./public/fanfic_sample.txt', { encoding: 'utf8' });
+const readStream = fs.createReadStream('./client/fanfic_sample.txt', { encoding: 'utf8' });
 readStream.on('data', chunk => {
     fullText += chunk;
 });
