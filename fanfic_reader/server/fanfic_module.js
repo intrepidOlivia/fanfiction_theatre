@@ -14,7 +14,7 @@ let clientCount = 0;
 let sectionIndex = 0;
 let RATE_LIMIT = 500;
 let rateTimer = Date.now();
-const READER_URL = `http://${process.env.PORT}/reader`; // TODO: This is fairly brittle, see if there's a more robust way to configure
+const READER_URL = `http://146.190.150.79/reader`; // TODO: This is fairly brittle, see if there's a more robust way to configure
 
 // FOR REFERENCE ONLY
 const MESSAGE_STRUCTURE = {
