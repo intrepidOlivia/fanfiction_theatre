@@ -1,6 +1,6 @@
 javascript:(function() {        
     'use strict';
-    const DOMAIN = '138.68.243.184';
+    const DOMAIN = '146.190.150.79';
     /* const DOMAIN = 'localhost'; */
     const PORT = 8080;  
     const PATH = 'fanfic/fic_submit';  
