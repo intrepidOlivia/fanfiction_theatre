@@ -38,6 +38,7 @@
 .column,
 .columns {
   width: 100%;
+  margin-top: 0.5em;
   float: left;
   box-sizing: border-box; }
 
@@ -48,13 +49,14 @@
     padding: 0; }
 }
 
-/* For devices larger than 550px */
-@media (min-width: 550px) {
+/* For devices larger than 700px */
+@media (min-width: 700px) {
   .container {
     width: 80%; }
   .column,
   .columns {
-    margin-left: 4%; }
+    margin-left: 4%;
+    margin-top: 0 }
   .column:first-child,
   .columns:first-child {
     margin-left: 0; }
@@ -124,7 +126,7 @@ body {
   font-size: 2em; /* currently ems cause chrome bug misinterpreting rems on body element */
   line-height: 1.6;
   font-weight: 400;
-  font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Open Sans", sans-serif;
   color: rgb(255, 217, 117); 
   background-color: rgb(8, 11, 11);}
 
@@ -161,9 +163,9 @@ p {
 /* Links
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 a {
-  color: #1EAEDB; }
+  color: rgb(255, 217, 117); }
 a:hover {
-  color: #0FA0CE; }
+  color: whitesmoke; }
 
 
 /* Buttons

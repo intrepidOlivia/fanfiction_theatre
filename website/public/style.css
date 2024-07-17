@@ -17,6 +17,8 @@ body{
     background-image: url('assets/Wallpaper_v2.0.png');
     background-position-y: 0px;
     background-position-x: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     background-color: rgb(8, 11, 11);
     padding-left: 1em;
     padding-right: 1em;
@@ -37,6 +39,10 @@ h1,h2,h3 {
 
 h3 {
     color: rgb(124, 103,152);
+}
+
+.hero {
+    height: 100%;
 }
 
 hr {
