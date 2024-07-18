@@ -1,10 +1,15 @@
-var http = require('http');
+var https = require('https');
 
 const fanficSockets = require('./fanfic_module');
 
 const PORT = process.env.PORT || 8080;
 
-var server = http.createServer(function (request, response) {
+const options = {
+    key: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/fullchain.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/privkey.pem'),
+};
+
+var server = https.createServer(options, function (request, response) {
     var url = require('url');
     console.log("Request was received from " + request.headers.referer + ": " + request.url);
 
