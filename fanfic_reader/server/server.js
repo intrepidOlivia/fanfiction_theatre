@@ -1,4 +1,5 @@
 var https = require('https');
+const fs = require('fs');
 
 const fanficSockets = require('./fanfic_module');
 
