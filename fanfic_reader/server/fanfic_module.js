@@ -1,10 +1,11 @@
 
 const WebSocket = require('ws');
 const fs = require('fs');
+const https = require('https');
 var httpProxy = require('http-proxy');
 const { IncomingMessage } = require('http');
 
-const PORT = process.env.WSPORT || 8081;
+const PORT = process.env.WSPORT || 8080;
 
 let fullText = '';
 let ficSource = '';
@@ -36,15 +37,31 @@ readStream.on('end', () => {
 });
 
 // Upgrade proxy
-const wsProxy = new httpProxy.createProxyServer({
-	target: {
-		host: 'localhost',
-		port: PORT,
-	},
+// const wsProxy = new httpProxy.createProxyServer({
+// 	target: {
+// 		host: 'localhost',
+// 		port: PORT,
+//	},
+// });
+
+const options = {
+    key: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/cert.pem'),
+    port: PORT,
+};
+/**
+const httpsServer = new https.createServer(options, function (req, response) {
+  console.log('Request received');
+        response.statusCode = 500;
+        response.write("Server undergoing maintenance");
+        response.end();
 });
+*/
+
+const httpsServer = new https.createServer(options);
 
 // Server
-const server = new WebSocket.Server({ port: PORT });
+const server = new WebSocket.WebSocketServer({ server: httpsServer });
 server.on('connection', function connect(socket) {
     const clientId = ++clientCount;
     console.info(`connection established with client ${clientId}`);
@@ -99,6 +116,13 @@ server.on('connection', function connect(socket) {
         const socketsRemaining = Object.keys(sockets).length;
         console.info(`Removing client ${clientId}. Number of sockets remaining:`, socketsRemaining);
     });
+});
+
+httpsServer.listen(PORT);
+console.log('Https server listening on port: ', PORT);
+
+httpsServer.on('error', function (err) {
+    console.log('The following error has been encountered with the server receiving requests from Pixelstomp: ' + err.messsage);
 });
 
 function registerViewer(socketClient) {
@@ -227,7 +251,7 @@ function updateFicText(text) {
 module.exports = {
     server,
     PORT,
-    proxy: wsProxy,
+//    proxy: wsProxy,
     api: {
         loadNewFanfic,
     },

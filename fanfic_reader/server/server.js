@@ -6,8 +6,8 @@ const fanficSockets = require('./fanfic_module');
 const PORT = process.env.PORT || 8080;
 
 const options = {
-    key: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/fullchain.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/privkey.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/cert.pem'),
 };
 
 var server = https.createServer(options, function (request, response) {
@@ -41,6 +41,7 @@ var server = https.createServer(options, function (request, response) {
 
 });
 server.on('upgrade', (request, socket, head) => {
+        console.log("Upgrade connection to ws!");
 	fanficSockets.proxy.ws(request, socket, head);
 });
 server.listen(PORT, function () {
