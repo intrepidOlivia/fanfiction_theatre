@@ -1,7 +1,10 @@
+/**
+ * Instructions for deployment: Copy the below javascript into the `href` property of the <a> tag in bookmarklet.html.
+ */
+
 javascript:(function() {        
     'use strict';
-    const DOMAIN = '146.190.150.79';
-    /* const DOMAIN = 'localhost'; */
+    const DOMAIN = 'fanfictiontheatre.com';
     const PORT = 8080;  
     const PATH = 'fanfic/fic_submit';  
 
