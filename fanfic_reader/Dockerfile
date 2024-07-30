@@ -1,13 +1,20 @@
 FROM node
 
-WORKDIR .
+WORKDIR ~
 
-COPY package*.json ./
+# COPY package*.json ./
+
+# RUN npm install
+
+COPY . .
 
 RUN npm install
 
-COPY . .
+COPY privkey.pem /etc/letsencrypt/live/fanfictiontheatre.com/
+COPY cert.pem /etc/letsencrypt/live/fanfictiontheatre.com/
 
 EXPOSE 8080
 
 CMD ["npm", "start"]
+
+# CMD ["tail", "-f", "/dev/null"]

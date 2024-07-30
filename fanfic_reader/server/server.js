@@ -40,16 +40,19 @@ var server = https.createServer(options, function (request, response) {
     }
 
 });
+/** 
 server.on('upgrade', (request, socket, head) => {
         console.log("Upgrade connection to ws!");
 	fanficSockets.proxy.ws(request, socket, head);
 });
+*/
 server.listen(PORT, function () {
     console.log(`server listening on port ${PORT}.`);
 });
 server.on('error', function (err) {
     console.log('The following error has been encountered with the server receiving requests from Pixelstomp: ' + err.message + '\n');
 });
+fanficSockets.initWebsocketServer(server);
 
 // MISC QUERIES
 // ------------

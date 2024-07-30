@@ -15,7 +15,7 @@ let clientCount = 0;
 let sectionIndex = 0;
 let RATE_LIMIT = 500;
 let rateTimer = Date.now();
-const READER_URL = `http://146.190.150.79/reader`; // TODO: This is fairly brittle, see if there's a more robust way to configure
+const READER_URL = `https://fanfictiontheatre.com/reader`; // TODO: This is fairly brittle, see if there's a more robust way to configure
 
 // FOR REFERENCE ONLY
 const MESSAGE_STRUCTURE = {
@@ -44,11 +44,14 @@ readStream.on('end', () => {
 //	},
 // });
 
+/**
 const options = {
+// Commented out for Debug with docker container
     key: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/privkey.pem'),
     cert: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/cert.pem'),
     port: PORT,
 };
+*/
 /**
 const httpsServer = new https.createServer(options, function (req, response) {
   console.log('Request received');
@@ -58,9 +61,10 @@ const httpsServer = new https.createServer(options, function (req, response) {
 });
 */
 
-const httpsServer = new https.createServer(options);
+// const httpsServer = new https.createServer(options);
 
 // Server
+function initWebsocketServer(httpsServer) {
 const server = new WebSocket.WebSocketServer({ server: httpsServer });
 server.on('connection', function connect(socket) {
     const clientId = ++clientCount;
@@ -118,12 +122,15 @@ server.on('connection', function connect(socket) {
     });
 });
 
-httpsServer.listen(PORT);
-console.log('Https server listening on port: ', PORT);
+// httpsServer.listen(PORT);
+// console.log('Https server listening on port: ', PORT);
 
+/**
 httpsServer.on('error', function (err) {
     console.log('The following error has been encountered with the server receiving requests from Pixelstomp: ' + err.messsage);
 });
+*/
+}
 
 function registerViewer(socketClient) {
     socketClient.isViewer = true;
@@ -249,7 +256,7 @@ function updateFicText(text) {
 }
 
 module.exports = {
-    server,
+    initWebsocketServer,
     PORT,
 //    proxy: wsProxy,
     api: {

@@ -1,7 +1,7 @@
-const DOMAIN = '146.190.150.79';
+const DOMAIN = 'fanfictiontheatre.com';
 // const DOMAIN = 'localhost';
 const PORT = '8080';
-const socket = new WebSocket(`ws://${DOMAIN}:${PORT}/`, );
+const socket = new WebSocket(`wss://${DOMAIN}:${PORT}/`, );
 let socketOpen = false;
 
 const SEGMENT_CONTAINER_SELECTOR = '#segmentWrapper';
