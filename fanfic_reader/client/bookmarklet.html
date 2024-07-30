@@ -15,7 +15,7 @@
     
         function submitToReader(text) {
             const form = document.createElement('form');  
-            form.action = `http://${DOMAIN}:${PORT}/${PATH}`;  
+            form.action = `https://${DOMAIN}:${PORT}/${PATH}`;  
             form.method = 'post';  
             form.hidden = true;  
             const input = document.createElement('textarea');  
