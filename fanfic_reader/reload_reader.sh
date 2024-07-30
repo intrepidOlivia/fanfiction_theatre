@@ -1,4 +1,4 @@
-# git pull
+git pull
 
 # Copy certs into working context
 cp /etc/letsencrypt/live/fanfictiontheatre.com/privkey.pem .
