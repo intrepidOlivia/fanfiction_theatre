@@ -1,7 +1,3 @@
-/**
- * Instructions for deployment: Copy the below javascript into the `href` property of the <a> tag in bookmarklet.html.
- */
-
 javascript:(function() {        
     'use strict';
     const DOMAIN = 'fanfictiontheatre.com';
@@ -14,7 +10,7 @@ javascript:(function() {
 
     function submitToReader(text) {
         const form = document.createElement('form');  
-        form.action = `http://${DOMAIN}:${PORT}/${PATH}`;  
+        form.action = `https://${DOMAIN}:${PORT}/${PATH}`;  
         form.method = 'post';  
         form.hidden = true;  
         const input = document.createElement('textarea');  
