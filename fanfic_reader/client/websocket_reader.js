@@ -1,7 +1,9 @@
-const DOMAIN = 'fanfictiontheatre.com'
-// const DOMAIN = 'localhost';
+const currentUrl = new URL(window.location.href);
+const domain = currentUrl.host;
+const isDevMode = domain === 'localhost';
 const PORT = '8080';
-const socket = new WebSocket(`wss://${DOMAIN}:${PORT}`, );
+const protocol = isDevMode ? 'ws' : 'wss';
+const socket = new WebSocket(`${protocol}://${domain}:${PORT}`, );
 let socketOpen = false;
 let currentIndex = 0;
 let maxIndex = null;
@@ -349,7 +351,7 @@ function submitFicText(event) {
     const textArea = document.getElementById(PASTE_TEXTAREA_ID);
     const fanficText = textArea.value;
     if (fanficText.length > 0) {
-        fetch(`http://${DOMAIN}:${PORT}/fanfic/fic_submit`,
+        fetch(`http://${domain}:${PORT}/fanfic/fic_submit`,
         { 
             method: 'POST',
             body: JSON.stringify(

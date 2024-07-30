@@ -4,12 +4,17 @@
   "description": "pages and utilities related to the fanfiction reader and viewer",
   "main": "server.js",
   "scripts": {
-    "start": "node server/server.js"
+    "start": "node server/server.js",
+    "local": "cross-env MODE=localhost node server/server.js"
   },
   "author": "poplopo",
   "license": "UNLICENSED",
   "dependencies": {
     "http-proxy": "^1.18.1",
     "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "serve-handler": "^6.1.5"
   }
 }

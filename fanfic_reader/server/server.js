@@ -1,16 +1,20 @@
 var https = require('https');
+const http = require('http');
 const fs = require('fs');
 
 const fanficSockets = require('./fanfic_module');
 
 const PORT = process.env.PORT || 8080;
+const isDevMode = process.env.MODE === 'localhost';
 
-const options = {
+const options = isDevMode ? {} : {
     key: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/privkey.pem'),
     cert: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/cert.pem'),
 };
 
-var server = https.createServer(options, function (request, response) {
+const protocol = isDevMode ? http : https;
+
+var server = protocol.createServer(options, function (request, response) {
     var url = require('url');
     console.log("Request was received from " + request.headers.referer + ": " + request.url);
 
@@ -41,7 +45,7 @@ var server = https.createServer(options, function (request, response) {
 
 });
 server.listen(PORT, function () {
-    console.log(`server listening on port ${PORT}.`);
+    console.log(`Reader server listening on port ${PORT}.`);
 });
 server.on('error', function (err) {
     console.log('The following error has been encountered with the server receiving requests from Pixelstomp: ' + err.message + '\n');
@@ -95,4 +99,21 @@ function ServeError(response, status = 404, message = 'Not found.') {
         response.write('Not found.');
         response.end();
     }
+}
+
+if (isDevMode) {
+    // Serve local files to localhost
+    const handler = require('serve-handler');
+
+    const localServer = http.createServer((request, response) => {
+    // You can customize the options passed to serve-handler here
+    return handler(request, response, {
+        public: 'client', // Path to the directory you want to serve
+        cleanUrls: true, // Removes .html extension from URLs
+    });
+    });
+
+    localServer.listen(80, () => {
+    console.log('Static file server running at http://localhost');
+    });
 }
