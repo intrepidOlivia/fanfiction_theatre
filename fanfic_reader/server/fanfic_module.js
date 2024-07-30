@@ -1,8 +1,6 @@
 
 const WebSocket = require('ws');
 const fs = require('fs');
-const https = require('https');
-var httpProxy = require('http-proxy');
 const { IncomingMessage } = require('http');
 
 const PORT = process.env.WSPORT || 8080;
@@ -35,33 +33,6 @@ readStream.on('data', chunk => {
 readStream.on('end', () => {
     readStream.close();
 });
-
-// Upgrade proxy
-// const wsProxy = new httpProxy.createProxyServer({
-// 	target: {
-// 		host: 'localhost',
-// 		port: PORT,
-//	},
-// });
-
-/**
-const options = {
-// Commented out for Debug with docker container
-    key: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/fanfictiontheatre.com/cert.pem'),
-    port: PORT,
-};
-*/
-/**
-const httpsServer = new https.createServer(options, function (req, response) {
-  console.log('Request received');
-        response.statusCode = 500;
-        response.write("Server undergoing maintenance");
-        response.end();
-});
-*/
-
-// const httpsServer = new https.createServer(options);
 
 // Server
 function initWebsocketServer(httpsServer) {
@@ -121,15 +92,6 @@ server.on('connection', function connect(socket) {
         console.info(`Removing client ${clientId}. Number of sockets remaining:`, socketsRemaining);
     });
 });
-
-// httpsServer.listen(PORT);
-// console.log('Https server listening on port: ', PORT);
-
-/**
-httpsServer.on('error', function (err) {
-    console.log('The following error has been encountered with the server receiving requests from Pixelstomp: ' + err.messsage);
-});
-*/
 }
 
 function registerViewer(socketClient) {
@@ -258,7 +220,6 @@ function updateFicText(text) {
 module.exports = {
     initWebsocketServer,
     PORT,
-//    proxy: wsProxy,
     api: {
         loadNewFanfic,
     },

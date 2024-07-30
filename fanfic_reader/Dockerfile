@@ -2,10 +2,6 @@ FROM node
 
 WORKDIR ~
 
-# COPY package*.json ./
-
-# RUN npm install
-
 COPY . .
 
 RUN npm install
@@ -17,4 +13,5 @@ EXPOSE 8080
 
 CMD ["npm", "start"]
 
+# Keeps the docker container open even if a script is not running
 # CMD ["tail", "-f", "/dev/null"]

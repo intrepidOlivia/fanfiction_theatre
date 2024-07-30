@@ -40,12 +40,6 @@ var server = https.createServer(options, function (request, response) {
     }
 
 });
-/** 
-server.on('upgrade', (request, socket, head) => {
-        console.log("Upgrade connection to ws!");
-	fanficSockets.proxy.ws(request, socket, head);
-});
-*/
 server.listen(PORT, function () {
     console.log(`server listening on port ${PORT}.`);
 });
