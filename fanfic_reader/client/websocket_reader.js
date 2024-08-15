@@ -351,7 +351,7 @@ function submitFicText(event) {
     const textArea = document.getElementById(PASTE_TEXTAREA_ID);
     const fanficText = textArea.value;
     if (fanficText.length > 0) {
-        fetch(`http://${domain}:${PORT}/fanfic/fic_submit`,
+        fetch(`${protocol}://${domain}:${PORT}/fanfic/fic_submit`,
         { 
             method: 'POST',
             body: JSON.stringify(
