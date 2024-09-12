@@ -15,7 +15,7 @@
         </div>
         <div class="instructions">
             <p>Tip: Use the Left and Right arrow keys to navigate the selected paragraph up or down.</p>
-            <p><button onclick="openPasteModal()">Click to paste in a new fic</button></p>
+            <p><button onclick="openPasteModal('formatted')">Paste in a new fic</button></p>
             <!-- This button clears the markedParagraphs array, but does not update the styles. Highlights will disappear when the reader updates -->
             <p><button onclick="clearMarks()">Click to clear highlighted paragraghs</button></p>
 
@@ -38,6 +38,9 @@
                         Paste fic text below:
                     </div>
                     <div>
+                        <input type="checkbox" id="richTextPaste" name="richTextPaste" /><label for="richTextPaste">Paste rich text</label>
+                    </div>
+                    <div>
                         <textarea id="ficText"></textarea>
                     </div>
                     <div class="evenSpacedButtons"><button onclick="closePasteModal()">Cancel</button><button type="submit">Submit</button></div>
@@ -51,6 +54,8 @@
         fic_paste_form.addEventListener('submit', submitFicText);
         document.getElementById('username_form').addEventListener('submit', submitUsername);
         fic_paste_form.addEventListener('paste', interceptFicPaste);
+        const formatSetting = document.getElementById('richTextPaste');
+        formatSetting.addEventListener('change', (e) => { currentPasteMode = e.target.checked ? PASTE_MODE.RICHTEXT : PASTE_MODE.PLAINTEXT; });
     </script>
 </html>
 
@@ -180,6 +185,10 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+    }
+
+    .modal label {
+        font-size: 14px;
     }
 
     .ficParagraph {

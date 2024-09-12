@@ -15,6 +15,13 @@ const WHITESPACE = /[\r\n]+/;
 const HTML_WHITESPACE = /<p\s*.*>\s*.*<\/p>/;
 const PASTE_TEXTAREA_ID = 'ficText';
 const HTMLMatcher = new RegExp('<(.*)>.*?|<(.*) />', 'g');
+const PASTE_MODE = {
+    PLAINTEXT: 'text/plain',
+    RICHTEXT: 'text/html',
+    URL: 'url',
+};
+
+var currentPasteMode = PASTE_MODE.PLAINTEXT;
 
 socket.addEventListener('open', (openEvent) => {
     socketOpen = true;
@@ -330,20 +337,40 @@ function closePasteModal() {
 }
 
 function interceptFicPaste(event) {
-    if (event.clipboardData && event.clipboardData.getData) {
-        const htmlData = event.clipboardData.getData('text/html');
-        if (!htmlData) {
-            return;
-        }
-        const textArea = document.getElementById(PASTE_TEXTAREA_ID);
-        if (!textArea) {
-            console.error('No applicable text area found for paste.');
-            return;
-        }
-        textArea.value = htmlData;
-        event.preventDefault();
+    if (!event.clipboardData || !event.clipboardData.getData) {
+        console.error('No data detected in clipboard.');
+        return;
     }
-    
+
+    let data;
+    switch(currentPasteMode) {
+        case PASTE_MODE.RICHTEXT: {
+            data = event.clipboardData.getData(PASTE_MODE.RICHTEXT);
+            if (!data) {
+                console.error('Could not retrieve HTML data from clipboard.');
+                return;
+            }
+        } break;
+        case PASTE_MODE.PLAINTEXT: {
+            data = event.clipboardData.getData(PASTE_MODE.PLAINTEXT);
+            if (!data) {
+                console.error('Could not retrieve plain text from clipboard.');
+                return;
+            }
+        } break;
+        default: {
+            console.error('This line should not be reached.');
+            return;
+        }
+    }
+
+    const textArea = document.getElementById(PASTE_TEXTAREA_ID);
+    if (!textArea) {
+        console.error('No applicable text area found for paste.');
+        return;
+    }
+    event.preventDefault();
+    textArea.value = data;
 }
 
 function submitFicText(event) {
