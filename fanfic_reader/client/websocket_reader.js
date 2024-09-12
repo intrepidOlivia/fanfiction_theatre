@@ -2,8 +2,9 @@ const currentUrl = new URL(window.location.href);
 const domain = currentUrl.host;
 const isDevMode = domain === 'localhost';
 const PORT = '8080';
-const protocol = isDevMode ? 'ws' : 'wss';
-const socket = new WebSocket(`${protocol}://${domain}:${PORT}`, );
+const wsProtocol = isDevMode ? 'ws' : 'wss';
+const httpProtocol = isDevMode ? 'http' : 'https';
+const socket = new WebSocket(`${wsProtocol}://${domain}:${PORT}`, );
 let socketOpen = false;
 let currentIndex = 0;
 let maxIndex = null;
@@ -378,7 +379,7 @@ function submitFicText(event) {
     const textArea = document.getElementById(PASTE_TEXTAREA_ID);
     const fanficText = textArea.value;
     if (fanficText.length > 0) {
-        fetch(`https://${domain}:${PORT}/fanfic/fic_submit`,
+        fetch(`${httpProtocol}://${domain}:${PORT}/fanfic/fic_submit`,
         { 
             method: 'POST',
             body: JSON.stringify(
