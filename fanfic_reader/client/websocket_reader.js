@@ -330,6 +330,7 @@ function matchParaStylingToActive(paragraphs, activeIndex) {
 
 function openPasteModal() {
     document.querySelector('#ficSubmitModal').classList.remove('hidden');
+    document.querySelector('#ficText').focus();
 }
 
 function closePasteModal() {
