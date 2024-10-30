@@ -16,7 +16,6 @@ const protocol = isDevMode ? http : https;
 
 var server = protocol.createServer(options, function (request, response) {
     var url = require('url');
-    console.log("Request was received from " + request.headers.referer + ": " + request.url);
 
     var reqUrl = url.parse(request.url, true);
     var path = reqUrl.pathname;
@@ -93,7 +92,6 @@ function ServeError(response, status = 404, message = 'Not found.') {
         rs.on('end', function () {
             response.end();
         });
-        console.log(`Responded with: ${status} ${message}`);
     }
     catch (err) {
         response.write('Not found.');
