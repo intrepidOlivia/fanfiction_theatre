@@ -295,8 +295,11 @@ function markParagraph(textSpan, index) {
 }
 
 function clearMarks() {
-    markedDialogue.length = 0; 
-    // TODO: Update styles
+    markedDialogue.length = 0;
+    const markedPs = document.querySelectorAll('.markedP');
+    markedPs.forEach(p => {
+        p.classList.remove('markedP');
+    });
 }
 /**
  * 
