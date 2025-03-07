@@ -23,6 +23,7 @@ const MESSAGE_STRUCTURE = {
     allClients: 'Array<string>',
     viewer: 'boolean',
     storySource: 'string',
+    handsRaised: 'Array<Object<id: number, handIsRaised: boolean>>',
 };
 
 // DEBUG - READ SAMPLE TEXT
@@ -82,6 +83,11 @@ server.on('connection', function connect(socket) {
             rateTimer = Date.now();
         }
 
+        // Check for raised hand
+        if (message.toggleRaisedHand) {
+            user.handIsRaised = !user.handIsRaised;
+        }
+
         feedToReaders();
         feedToViewers();
     })
@@ -101,12 +107,18 @@ function registerViewer(socketClient) {
 function feedToReaders() {
     Object.values(sockets).forEach(s => {
         if (!s.isViewer) {
+            const allClientsList = Object.values(sockets).filter(client => !client.isViewer);
             // Keep this structure aligned with MESSAGE_STRUCTURE
             s.socket.send(JSON.stringify({
+                id: s.id,
                 text: fullText,
                 index: sectionIndex,
-                allClients: Object.values(sockets).filter(client => !client.isViewer).map(client => client.name),
+                allClients: allClientsList.map(client => client.name),
                 storySource: ficSource,
+                handsRaised: allClientsList.map(client => ({
+                    id: client.id,
+                    handIsRaised: client.handIsRaised,
+                })),
             }));
         }
     });
@@ -129,6 +141,7 @@ class SocketClient {
         this.id = id;
         this.name = null;
         this.isViewer = false;
+        this.handIsRaised = false;
     }
 }
 

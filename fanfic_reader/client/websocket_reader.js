@@ -11,7 +11,8 @@ let maxIndex = null;
 var markedDialogue = [];
 
 const TEXT_CONTAINER_SELECTOR = '#chatlog'
-const CLIENT_LIST_SELECTOR = '.clientList';
+const CLIENT_LIST_SELECTOR = '#clientList';
+const HAND_RAISED_SELECTOR = '#handRaiseList'
 const WHITESPACE = /[\r\n]+/;
 const HTML_WHITESPACE = /<p\s*.*>\s*.*<\/p>/;
 const PASTE_TEXTAREA_ID = 'ficText';
@@ -21,6 +22,7 @@ const PASTE_MODE = {
     RICHTEXT: 'text/html',
     URL: 'url',
 };
+let clientId;
 
 var currentPasteMode = PASTE_MODE.PLAINTEXT;
 
@@ -39,6 +41,11 @@ socket.addEventListener('message', (messageEvent) => {
     } catch {
         throw new Error('Websocket message could not be parsed:', messageString);
     }
+
+    if (message.id) {
+        clientId = message.id;
+    }
+
     if (message.alert) {
         // show alert modal (already on the page)
         // showModal(getUsernameModal());
@@ -65,6 +72,14 @@ socket.addEventListener('message', (messageEvent) => {
         const clientList = document.querySelector(CLIENT_LIST_SELECTOR);
         clientList.innerHTML = formatClientList(message.allClients);
     }
+
+    if (message.handsRaised) {
+        // populate list of hand raises
+        const handRaisedList = document.querySelector(HAND_RAISED_SELECTOR);
+        handRaisedList.innerHTML = formatHandRaiseList(message.handsRaised);
+    }
+
+    
 
     if (message.storySource) {
         // Add story link to top of the page
@@ -135,6 +150,16 @@ function submitChangedIndex(event) {
         socket.send(JSON.stringify({ changeIndex: currentIndex + modifier }));
     } else {
         window.alert('Socket was unexpectedly closed. Please refresh the page.');
+    }
+}
+
+function toggleRaiseHand() {
+    if (socketOpen) {
+        socket.send(JSON.stringify({
+            toggleRaisedHand: true,
+        }));
+    } else {
+        window.alert('Socket was unexpectedly closed. Please refresh the page or contact an administrator.');
     }
 }
 
@@ -239,7 +264,18 @@ function openUsernameModal() {
  */
 function formatClientList(clientList) {
     return clientList.map(client => {
-        return `<p class="clientName" onclick="openUsernameModal()">${client}</p>`
+        return `<p class="clientName userColumnRow" onclick="openUsernameModal()">${client}</p>`
+    }).join("");
+}
+
+function formatHandRaiseList(handRaiseList) {
+    return handRaiseList.map(userData => {
+        const userIsRemote = userData.id !== clientId;
+        if (userIsRemote) {
+            return `<p class='handRaise remote userColumnRow'>${userData.handIsRaised ? '🤚' : ''}</p>`
+        } else {
+            return `<button onclick="toggleRaiseHand()" class='handRaise local userColumnRow'>${userData.handIsRaised ? '🤚' : ''}</button>`;
+        }
     }).join("");
 }
 
@@ -253,12 +289,9 @@ function markParagraph(textSpan, index) {
     textSpan.classList.toggle('markedP');
     if (markedDialogue.includes(index) == true) {
         markedDialogue.splice(markedDialogue.indexOf(index), 1);
-        console.log('Paragraph at index', index, ' removed from markedDialogue[]');
     } else {
         markedDialogue.push(index);
-        console.log('Paragraph at index', index, ' added to markedDialogue[]');
     }
-    console.log(markedDialogue);
 }
 
 function clearMarks() {

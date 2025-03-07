@@ -10,7 +10,11 @@
             <div id='chatlog' class='chatlog'></div>
             <div id='clientListWrapper' class='clientListWrapper' >
                 <div class="clientListHeader">Client List</div>
-                <div class="clientList"></div>
+                <div id="clientList" class="userColumnList"></div>
+            </div>
+            <div id="handRaiseWrapper" class="clientListWrapper">
+                <div class="clientListHeader">Raised Hands</div>
+                <div id="handRaiseList" class="userColumnList"></div>
             </div>
         </div>
         <div class="instructions">
@@ -120,7 +124,7 @@
         flex-direction: column;
         height: 100%;
         border: 3px solid #FFFFFF;
-        margin: 0 10px;
+        margin: 0 0 0 5px;
         color: #000;
     }
 
@@ -132,14 +136,6 @@
         border-bottom: 1px solid #000;
     }
 
-    .clientList {
-        padding: 10px;
-        max-height: 80vh;
-        max-width: 20vw;
-        text-align: center;
-        background-color: #1A1A52;
-    }
-
     .clientName {
         font-weight: bold;
         margin: 9px 0px;
@@ -147,6 +143,45 @@
         opacity: .8;
         background-color: rgba(255, 255, 255, 0.5);
         cursor: pointer;
+    }
+    
+    .userColumnRow {
+        box-sizing: border-box;
+        height: 42px;
+    }
+    
+    .userColumnList {
+        padding: 10px;
+        max-height: 80vh;
+        max-width: 20vw;
+        text-align: center;
+        background-color: #1A1A52;
+    }
+
+    .handRaise {
+        font-weight: bold;
+        margin: 9px 0px;
+        padding: 9px;
+        opacity: .8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        font-size: 24px;
+    }
+    
+    .handRaise .local {
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0.5);
+        opacity: 0;
+    }
+
+    .handRaise local:hover {
+        opacity: 1;
+    }
+
+    .handRaise .remote {
+        user-select: none;
     }
 
     .evenSpacedButtons {
