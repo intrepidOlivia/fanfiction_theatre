@@ -14,7 +14,6 @@ function extractParagraphs(text) {
         // Extract text from <p> tags
         const match = text.matchAll(/<.+?>/g);
         const matchArray = Array.from(match);
-        console.log('Match array:', matchArray);
         let pindex = null;
         for (let m of matchArray) {
             // Handle paragraphs
