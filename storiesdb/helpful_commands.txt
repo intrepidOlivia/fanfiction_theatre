@@ -1,0 +1,13 @@
+
+#Check for running docker container:
+docker ps
+
+# Open up a shell in a running docker container:
+docker exec -it <container_id> bash
+
+# ----Inside the docker container----
+
+# Access the existing database
+psql -U admin storiesdb
+
+
