@@ -3,6 +3,7 @@ const http = require('http');
 const fs = require('fs');
 
 const fanficSockets = require('./fanfic_module');
+const storiesdb = require('./storiesdb_module');
 
 const PORT = process.env.PORT || 8080;
 const isDevMode = process.env.MODE === 'localhost';
@@ -15,7 +16,7 @@ const options = isDevMode ? {} : {
 const protocol = isDevMode ? http : https;
 
 var server = protocol.createServer(options, function (request, response) {
-    setupServer(request, response);
+    handleRequest(request, response);
 });
 server.listen(PORT, function () {
     console.log(`Reader server listening on port ${PORT}.`);
@@ -28,7 +29,7 @@ if (isDevMode) {
     serveLocalClient();
 }
 
-function setupServer(request, response) {
+function handleRequest(request, response) {
     var url = require('url');
 
     var reqUrl = url.parse(request.url, true);
@@ -44,15 +45,26 @@ function setupServer(request, response) {
 			case '/fanfic/fic_submit':
 				fanficSockets.api.loadNewFanfic(request, response);
 				break;
+            
+            case '/storiesdb/get':
+                storiesdb.api.loadStory(queries.handle, request, response);
+                break;
+
+            case '/storiesdb/getAll':
+                storiesdb.api.loadStoryList(request, response);
+                break;
+            
 
             default:
                 ServeError(response);
         }
     }
     catch (e) {
-        console.error('Unknown error:', e);
-        response.statusCode = 400;
-        response.write(JSON.stringify(e));
+        console.error(e);
+        if (!response.statusCode) {
+            response.statusCode = 500;
+        }
+        response.write(e.toString());
         response.end();
     }
 }
