@@ -50,6 +50,26 @@ server.on('error', function (err) {
     console.log('The following error has been encountered with the server receiving requests from Pixelstomp: ' + err.message + '\n');
 });
 fanficSockets.initWebsocketServer(server);
+if (isDevMode) {
+    serveLocalClient();
+}
+
+function serveLocalClient() {
+    // Serve local client files on localhost
+    const handler = require('serve-handler');
+
+    const localServer = http.createServer((request, response) => {
+    // You can customize the options passed to serve-handler here
+    return handler(request, response, {
+        public: 'client', // Path to the directory you want to serve
+        cleanUrls: true, // Removes .html extension from URLs
+    });
+    });
+
+    localServer.listen(80, () => {
+    console.log('Static file server running at http://localhost');
+    });
+}
 
 // MISC QUERIES
 // ------------
@@ -97,21 +117,4 @@ function ServeError(response, status = 404, message = 'Not found.') {
         response.write('Not found.');
         response.end();
     }
-}
-
-if (isDevMode) {
-    // Serve local files to localhost
-    const handler = require('serve-handler');
-
-    const localServer = http.createServer((request, response) => {
-    // You can customize the options passed to serve-handler here
-    return handler(request, response, {
-        public: 'client', // Path to the directory you want to serve
-        cleanUrls: true, // Removes .html extension from URLs
-    });
-    });
-
-    localServer.listen(80, () => {
-    console.log('Static file server running at http://localhost');
-    });
 }
