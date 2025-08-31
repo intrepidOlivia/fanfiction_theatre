@@ -15,6 +15,20 @@ const options = isDevMode ? {} : {
 const protocol = isDevMode ? http : https;
 
 var server = protocol.createServer(options, function (request, response) {
+    setupServer(request, response);
+});
+server.listen(PORT, function () {
+    console.log(`Reader server listening on port ${PORT}.`);
+});
+server.on('error', function (err) {
+    console.error('The following error has been encountered with the server receiving requests from Pixelstomp: ' + err.message + '\n');
+});
+fanficSockets.initWebsocketServer(server);
+if (isDevMode) {
+    serveLocalClient();
+}
+
+function setupServer(request, response) {
     var url = require('url');
 
     var reqUrl = url.parse(request.url, true);
@@ -36,22 +50,11 @@ var server = protocol.createServer(options, function (request, response) {
         }
     }
     catch (e) {
-        console.log('Unknown error:', e);
+        console.error('Unknown error:', e);
         response.statusCode = 400;
         response.write(JSON.stringify(e));
         response.end();
     }
-
-});
-server.listen(PORT, function () {
-    console.log(`Reader server listening on port ${PORT}.`);
-});
-server.on('error', function (err) {
-    console.log('The following error has been encountered with the server receiving requests from Pixelstomp: ' + err.message + '\n');
-});
-fanficSockets.initWebsocketServer(server);
-if (isDevMode) {
-    serveLocalClient();
 }
 
 function serveLocalClient() {
