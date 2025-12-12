@@ -36,6 +36,8 @@ socket.addEventListener('open', (openEvent) => {
 socket.addEventListener('message', (messageEvent) => {
     const messageString = messageEvent.data;
     let message;
+    let handIsRaised = false;
+    
     try {
         message = JSON.parse(messageString);
     } catch {
@@ -53,11 +55,23 @@ socket.addEventListener('message', (messageEvent) => {
         return;
     }
 
+    if (message.handsRaised) {
+        message.handsRaised.forEach(userInfo => {
+            if (userInfo.handIsRaised) {
+                handIsRaised = true;
+            }
+        });
+
+        // populate list of hand raises
+        const handRaisedList = document.querySelector(HAND_RAISED_SELECTOR);
+        handRaisedList.innerHTML = formatHandRaiseList(message.handsRaised);
+    }
+
     if (message.text) {
         // format the selected paragraph
         const div = document.querySelector(TEXT_CONTAINER_SELECTOR);
         div.innerHTML = '';
-        const paragraphs = formatTextToParagraphs(message.text, message.index);
+        const paragraphs = formatTextToParagraphs(message.text, message.index, handIsRaised);
 
         formatTextLinks(paragraphs, message.storySource);
 
@@ -70,14 +84,10 @@ socket.addEventListener('message', (messageEvent) => {
     if (message.allClients) {
         // populate the list of clients
         const clientList = document.querySelector(CLIENT_LIST_SELECTOR);
-        clientList.innerHTML = formatClientList(message.allClients);
+        clientList.innerHTML = formatClientList(message.allClients, message.handsRaised);
     }
 
-    if (message.handsRaised) {
-        // populate list of hand raises
-        const handRaisedList = document.querySelector(HAND_RAISED_SELECTOR);
-        handRaisedList.innerHTML = formatHandRaiseList(message.handsRaised);
-    }
+
 
     
 
@@ -268,9 +278,10 @@ function openUsernameModal() {
  * @param {Array<string>} clientList 
  * @returns {string}
  */
-function formatClientList(clientList) {
-    return clientList.map(client => {
-        return `<p class="clientName userColumnRow" onclick="openUsernameModal()">${client}</p>`
+function formatClientList(clientList, handsRaised) {
+    return clientList.map((client, i) => {
+        const handRaised = handsRaised[i].handIsRaised;
+        return `<p class="clientName userColumnRow" onclick="openUsernameModal()">${client}<br/>${handRaised ? '🤚' : ''}</p>`
     }).join("");
 }
 
@@ -278,17 +289,19 @@ function formatHandRaiseList(handRaiseList) {
     return handRaiseList.map(userData => {
         const userIsRemote = userData.id !== clientId;
         if (userIsRemote) {
-            return `<p class='handRaise remote userColumnRow'>${userData.handIsRaised ? '🤚' : ''}</p>`
+            // return `<p class='handRaise remote userColumnRow'>${userData.handIsRaised ? '🤚' : ''}</p>`
+            return `<p class='handRaise remote userColumnRow'></p>`
         } else {
-            return `<button onclick="toggleRaiseHand()" class='handRaise local userColumnRow'>${userData.handIsRaised ? '🤚' : ''}</button>`;
+            return `<button onclick="toggleRaiseHand()" class='handRaise local userColumnRow'></button>`;
+            // return `<button onclick="toggleRaiseHand()" class='handRaise local userColumnRow'>${userData.handIsRaised ? '🤚' : ''}</button>`;
         }
     }).join("");
 }
 
-function formatTextToParagraphs(htmlText, activeIndex) {
+function formatTextToParagraphs(htmlText, activeIndex, handIsRaised) {
     const paragraphs = extractParagraphs(htmlText);
     maxIndex = paragraphs.length - 1;
-    return styleActiveAndInactiveParagraphs(paragraphs, activeIndex);
+    return styleActiveAndInactiveParagraphs(paragraphs, activeIndex, handIsRaised);
 }
 
 function markParagraph(textSpan, index) {
@@ -313,7 +326,7 @@ function clearMarks() {
  * @param {number} activeIndex 
  * @returns {Array<HTMLElement>}
  */
-function styleActiveAndInactiveParagraphs(pHTMLStrings, activeIndex) {
+function styleActiveAndInactiveParagraphs(pHTMLStrings, activeIndex, handIsRaised) {
     return pHTMLStrings.map((p, i) => {
 
         const paragraph = document.createElement('p');
@@ -332,6 +345,10 @@ function styleActiveAndInactiveParagraphs(pHTMLStrings, activeIndex) {
         markDialogueButton.className = 'p_marker';
         markDialogueButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-highlighter" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.096.644a2 2 0 0 1 2.791.036l1.433 1.433a2 2 0 0 1 .035 2.791l-.413.435-8.07 8.995a.5.5 0 0 1-.372.166h-3a.5.5 0 0 1-.234-.058l-.412.412A.5.5 0 0 1 2.5 15h-2a.5.5 0 0 1-.354-.854l1.412-1.412A.5.5 0 0 1 1.5 12.5v-3a.5.5 0 0 1 .166-.372l8.995-8.07zm-.115 1.47L2.727 9.52l3.753 3.753 7.406-8.254zm3.585 2.17.064-.068a1 1 0 0 0-.017-1.396L13.18 1.387a1 1 0 0 0-1.396-.018l-.068.065zM5.293 13.5 2.5 10.707v1.586L3.707 13.5z"/></svg>';
         paragraph.appendChild(markDialogueButton);
+
+        if (handIsRaised && i === activeIndex) {
+            p += '🤚';
+        }
 
         const text = document.createElement('span');
         text.innerHTML = p;
