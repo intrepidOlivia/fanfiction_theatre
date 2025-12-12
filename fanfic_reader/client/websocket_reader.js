@@ -163,6 +163,12 @@ function toggleRaiseHand() {
     }
 }
 
+window.addEventListener('keydown', (e) => {
+  if (e.keyCode === 72) {
+	toggleRaiseHand();
+  }
+});
+
 const SCROLL_BUFFER = .33;
 const PADDING = 100;
 
