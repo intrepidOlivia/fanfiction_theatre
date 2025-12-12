@@ -108,17 +108,23 @@ function feedToReaders() {
     Object.values(sockets).forEach(s => {
         if (!s.isViewer) {
             const allClientsList = Object.values(sockets).filter(client => !client.isViewer);
+            let allClients = [];
+            let handsRaised = [];
+            allClientsList.forEach(client => {
+                allClients.push(client.name);
+                handsRaised.push({
+                    id: client.id,
+                    handIsRaised: client.handIsRaised,
+                });
+            });
             // Keep this structure aligned with MESSAGE_STRUCTURE
             s.socket.send(JSON.stringify({
                 id: s.id,
                 text: fullText,
                 index: sectionIndex,
-                allClients: allClientsList.map(client => client.name),
+                allClients,
                 storySource: ficSource,
-                handsRaised: allClientsList.map(client => ({
-                    id: client.id,
-                    handIsRaised: client.handIsRaised,
-                })),
+                handsRaised,
             }));
         }
     });
