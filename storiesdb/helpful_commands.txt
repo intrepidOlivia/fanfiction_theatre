@@ -10,4 +10,12 @@ docker exec -it <container_id> bash
 # Access the existing database
 psql -U admin storiesdb
 
+# Display all tables
+\dt
+
+# Display the definition (columns) of a table:
+\d <table_name>
+
+
+
 

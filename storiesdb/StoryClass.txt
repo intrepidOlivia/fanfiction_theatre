@@ -1,0 +1,185 @@
+// Code by TBMcQueen
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+public class CPHInline
+{
+	private Dictionary<string,Story> d;
+	public void OpenDict()
+	{
+		string dictJson = CPH.GetGlobalVar<string>("fftstories",true);
+		d = JsonConvert.DeserializeObject<Dictionary<string,Story>>(dictJson);
+	}
+	public void SaveDict()
+	{
+		CPH.SetGlobalVar("fftstories",JsonConvert.SerializeObject(d),true);
+	}
+
+	public bool AddStory(string name, string url, int chapter=1, string auth="")	//Create story and add it to the Dictionary
+	{
+		OpenDict();
+		var newEntry = new Story(url,chapter);
+		newEntry.author = auth;
+		if (d.ContainsKey(name)) 
+		{
+			CPH.LogError("Name already taken.");
+			return false;
+		} else {
+			d.Add(name,newEntry);
+			SaveDict();
+			return true;
+		}
+		
+	}
+	public int AdvStory(string handle, int chapter=0)	//Increment or set chapter number of a story
+	{
+		OpenDict();
+		d[handle].Adv();
+		if (chapter != 0) {d[handle].chapter = chapter;}
+		SaveDict();
+		return d[handle].chapter;
+	}
+	public bool SetDesc(string handle, string description)	//Add a description to a story
+	{
+		OpenDict();
+		if (d.ContainsKey(handle)) 
+		{
+			d[handle].description = description;}
+			SaveDict();
+			return true;
+		} else {
+			CPH.LogError("Handle not found");
+			return false;
+		}
+	}
+	public bool HoldPlace(string handle, string s)
+	{
+		OpenDict();
+		if (d.ContainsKey(handle)) 
+		{
+			d[handle].chapterPlace = s;}
+			SaveDict();
+			return true;
+		} else {
+			CPH.LogError("Handle not found");
+			return false;
+		}	
+	}
+	public string StoryIntro(string handle)
+	{
+		OpenDict();
+		if (d.ContainsKey(handle)) 
+		{
+			string message = "“" + d[handle].title + "” is " + d[handle].description + " ";
+			if (d[handle].website == "fanfiction.net")	//Use link to chapter, if possible
+			{
+				message += "https://fanfiction.net/s/" + d[handle].id + "/" + d[handle].chapter;
+			} else {
+				message += url + " (ch. " + d[handle].chapter + ")";
+			}
+			if (d[handle].chapterPlace != ""){	//Append chapter place marker, if it exists
+				string placeMessage = " (look for “" + d[handle].chapterPlace + "”)";
+				if (message.Length + placeMessage.Length > 500){
+					//Message too long to send.
+				} else{message += placeMessage;}
+			}
+			return message;
+		} else {
+			CPH.LogError("Handle not found");
+			return false;
+		}
+	}
+	public bool SetGame(string handle, string? rule = null, int count=1)
+	{
+		OpenDict();
+		if (d.ContainsKey(handle)) 
+		{
+			if(rule != null){d[handle].drinkingGame = rule;}
+			d[handle].drinks = count;
+			SaveDict();
+			return true;
+		} else {
+			CPH.LogError("Handle not found");
+			return false;
+		}
+	}
+	public int Game(string handle)
+	{
+		OpenDict();
+		if (d.ContainsKey(handle)) 
+		{
+			d[handle].drinks += 1;
+			CPH.LogInfo("Drink!");
+			SaveDict();
+			return d[handle].drinks;
+		} else {
+			CPH.LogError("Handle not found");
+			return 0;
+		}
+	}
+
+	//-------------------
+	public bool Execute()
+	{
+		string nulltest = CPH.GetGlobalVar<string>("fftstories",true);
+		if (nulltest == null){
+			Dictionary<string,Story> dict = new Dictionary<string,Story>();
+			CPH.SetGlobalVar("fftstories",JsonConvert.SerializeObject(dict),true);
+		} else {
+			CPH.LogInfo("fftstories exists");
+		}
+
+		return true;
+	}
+}
+
+public class Story
+{
+	public string title {get;set;}
+	public string author {get;set;}
+	public string drinkingGame {get;set;}	//e.g. "“it was then” / “that was when”"
+	public int drinks {get;set;}	//number of times the drinking game has triggered
+	public int chapter {get;set;}	//Current chapter we are on
+	public string chapterPlace {get;set;}	//Phrase to look for if we stopped mid-way
+	public string website {get;set;}	//The service hosting the fic
+	public string id {get;set;}	//Only for Fanfiction.net, currently
+	public string url {get;set;}	//Address of first chapter or story index
+	public string description {get;set;}	//Should start with lower-case 'a' e.g. 
+											//"a Star Fox fanfic in which Lylat is threatened by 
+											// a cyborg platypus called Bulletstrane."
+	public List<string> fandoms {get;set;}	//List of IPs the fanfic utilizes
+
+	public Story() {}
+
+	public Story(string webaddress, int ch = 1)	
+						//handle is essentially a variable name to refer to the story
+						//It should be short, but unique, e.g. "ddrmafias".
+						//To be used in commands like "!adv ddrmafias", which
+						//will search the dictionary keys for "ddrmafias" and
+						//run the .Adv() method on its Story.
+	{
+		chapter = ch;
+		url = webaddress;
+		if (url.Contains("fanfiction.net"))
+		{
+			website = "fanfiction.net";
+			Regex idreg = new Regex(@"(?:\/s\/)(\d+)");
+			id = idreg.Match(webaddress).Value;
+			Regex chreg = new Regex(@"(?:\/s\/\d+\/)(d{1,2})");
+			chapter = int.Parse(chreg.Match(webaddress).Value);
+		}
+		else if (url.Contains("archiveofourown.org")){website = "AO3";}
+		else if (url.Contains("wattpad.com")){website = "Wattpad";}
+		else if (url.Contains("deviantart.com")){website = "DeviantArt";}
+	}
+
+	public int Adv()	//Increment chapter number
+	{
+		chapter += 1;
+		chapterPlace = "";
+		return chapter;
+	}
+}

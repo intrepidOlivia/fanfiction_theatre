@@ -39,25 +39,42 @@ function handleRequest(request, response) {
     response.setHeader('Access-Control-Allow-Origin', '*');
     response.setHeader('Content-Type', 'application/json');
 
+    
+
     try {
-        switch (path) {
+        switch(request.method) {
+            case 'GET': {
+                switch (path) {
 			
-			case '/fanfic/fic_submit':
-				fanficSockets.api.loadNewFanfic(request, response);
-				break;
-            
-            case '/storiesdb/get':
-                storiesdb.api.loadStory(queries.handle, request, response);
-                break;
+                    case '/fanfic/fic_submit':
+                        fanficSockets.api.loadNewFanfic(request, response);
+                        break;
+                    
+                    case '/storiesdb/get':
+                        storiesdb.api.loadStory(queries.handle, request, response);
+                        break;
 
-            case '/storiesdb/getAll':
-                storiesdb.api.loadStoryList(request, response);
-                break;
-            
+                    case '/storiesdb/getAll':
+                        storiesdb.api.loadStoryList(request, response);
+                        break;
+                    
 
+                    default:
+                        ServeError(response);
+        }
+            }
+            case 'POST': {
+                switch (path) {
+                    case '/storiesdb/create':
+                        // get and parse POST data
+
+                        storiesdb.api.createStory({})
+                }
+            }
             default:
                 ServeError(response);
         }
+        
     }
     catch (e) {
         console.error(e);
