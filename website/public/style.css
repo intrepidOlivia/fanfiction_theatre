@@ -50,3 +50,13 @@ hr {
     border-top: 2px solid rgb(84, 91, 88);
     width: 80%;
 }
+
+.featured_links {
+    display: flex;
+    justify-content: center;
+}
+
+.featured_links a {
+    font-size: 1.5em;
+    font-family: 'Averia Serif Libre','Georgia',serif;
+}
