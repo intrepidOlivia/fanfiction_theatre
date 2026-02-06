@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fan Art Gallery - Fanfiction Theatre</title>
+</head>
+<body>
+    <h1 style="text-align:center; margin-top:24px;">Fan Art Gallery</h1>
+    <div class="gallery" id="gallery">
+        <!-- Thumbnails will be injected here -->
+    </div>
+
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog" id="dialog">
+            <button class="close-btn" id="closeBtn">&times;</button>
+            <img id="dialogImg" src="" alt="">
+            <div class="details">
+                <h2 id="dialogTitle"></h2>
+                <p id="dialogDesc"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gallery = document.getElementById('gallery');
+        const dialogContent = document.getElementById('dialog');
+        const dialogOverlay = document.getElementById('dialogOverlay');
+        const dialogImg = document.getElementById('dialogImg');
+        const dialogTitle = document.getElementById('dialogTitle');
+        const dialogDesc = document.getElementById('dialogDesc');
+        const closeBtn = document.getElementById('closeBtn');
+        const CONFIG_FILE = 'gallery_config.json';
+        let images = [];
+        const hashMap = {};
+
+        init();
+
+        function init() {
+            fetch(CONFIG_FILE)
+                .then(response => response.json())
+                .then(data => {
+                images = data;
+                images.forEach((img, idx) => {
+                    const thumb = document.createElement('img');
+                    const path = img.src.split('/');
+                    thumb.src = img.thumb;
+                    thumb.alt = img.title;
+                    thumb.className = 'thumbnail';
+                    thumb.dataset.idx = idx;
+                    thumb.dataset.hash = path[path.length - 1].split('.')[0];
+                    thumb.onclick = onClickOpenDialog;
+                    hashMap[thumb.dataset.hash] = idx;
+                    gallery.appendChild(thumb);
+                });
+                console.log('Resulting hashmap:', hashMap);
+
+                // Check initial url hash to see if a dialog should open
+                const hash = window.location.hash.slice(1);
+                console.log('Hash of window:', hash);
+                if (hashMap[hash]) {
+                    openDialog(hashMap[hash], hash);
+                }
+            });
+        }
+
+        function onClickOpenDialog(e) {
+            const idx = e.target.dataset.idx;
+            const hash = e.target.dataset.hash;
+            openDialog(idx, hash);
+            e.stopPropagation();
+        }
+
+        function openDialog(idx, hash) {
+            console.log('Open Dialog was called');
+            const img = images[idx];
+            window.location.hash = hash;
+            dialogImg.src = img.src;
+            dialogImg.alt = img.title;
+            dialogTitle.textContent = img.title;
+            dialogDesc.textContent = img.desc;
+            dialogOverlay.style.display = 'flex';
+            dialogOverlay.addEventListener('click', dialogCloseListener);
+        }
+
+        function closeDialog() {
+            dialogOverlay.style.display = 'none';
+            window.location.hash = '';
+            gallery.removeEventListener('click', dialogCloseListener);
+        }
+
+        function dialogCloseListener(e) {
+            if (!dialogContent.contains(e.target)) {
+                closeDialog();
+            }
+        }
+
+        closeBtn.addEventListener('click', function() {
+            closeDialog();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDialog();
+            }
+        });
+    </script>
+</body>
+</html>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+        }
+        .gallery { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 16px; 
+            padding: 24px; 
+            justify-content: center;
+        }
+        .thumbnail { 
+            height: 150px; 
+            max-width: 90vw;
+            cursor: pointer; 
+            border: 2px solid #eee; 
+            border-radius: 8px; 
+            transition: border 0.2s; 
+        }
+        @media(max-width:750px) {
+            .thumbnail {
+                height: 200px;
+            }
+        }
+        .thumbnail:hover { 
+            border: 2px solid #333; 
+        }
+        .dialog-overlay {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh;
+            background: rgba(0,0,0,0.5); 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000;
+        }
+        .dialog {
+            background: #fff; 
+            padding: 24px; 
+            border-radius: 10px; 
+            max-height: 90vh; 
+            max-width: 90vw;
+            height:fit-content;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2); 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .dialog img { 
+            width: 100%; 
+            border-radius: 8px; 
+            max-height: 83vh;
+        }
+        .close-btn {
+            position: absolute; 
+            top: 12px; 
+            right: 12px; 
+            background: #eee; 
+            border: none;
+            border-radius: 50%; 
+            width: 32px; 
+            height: 32px; 
+            font-size: 18px; 
+            cursor: pointer;
+        }
+        .details { 
+            margin-top: 16px; 
+        }
+        .details h2 { 
+            margin: 0 0 8px 0; 
+            font-size: 1.2em; 
+        }
+        .details p { 
+            margin: 0; 
+            color: #555; 
+        }
+    </style>
