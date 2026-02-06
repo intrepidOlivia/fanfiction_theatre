@@ -53,11 +53,9 @@
                     hashMap[thumb.dataset.hash] = idx;
                     gallery.appendChild(thumb);
                 });
-                console.log('Resulting hashmap:', hashMap);
 
                 // Check initial url hash to see if a dialog should open
                 const hash = window.location.hash.slice(1);
-                console.log('Hash of window:', hash);
                 if (hashMap[hash]) {
                     openDialog(hashMap[hash], hash);
                 }
@@ -72,7 +70,6 @@
         }
 
         function openDialog(idx, hash) {
-            console.log('Open Dialog was called');
             const img = images[idx];
             window.location.hash = hash;
             dialogImg.src = img.src;
