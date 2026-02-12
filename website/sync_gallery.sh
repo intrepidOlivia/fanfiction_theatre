@@ -6,39 +6,36 @@ CONFIG_FILE="./public/gallery_config.json"
 SERVE_LOCATION="public/"
 IMAGE_DIR="public/assets/gallery"
 
-
 # Ensure the config file exists
 if [ ! -f "$CONFIG_FILE" ] || [ ! -s "$CONFIG_FILE" ]; then
     echo "[]" > "$CONFIG_FILE"
 fi
 
-# Temporary JSON builder file
-TEMP_JSON=$(mktemp)
-echo "[]" > "$TEMP_JSON"
+# This function outputs a JSON object string for every file in the IMAGE_DIR directory
+generate_json_stream() {
+    find "$IMAGE_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) ! -name "*_thumbnail.jpg" | while read -r img; do
 
-# Loop through all the files that are not thumbnails
-find "$IMAGE_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) ! -name "*_thumbnail.jpg" | while read -r img; do
+        # Get paths
+        ext="${img##*.}"
+        base="${img%.*}"
+        thumb_path="${base}_thumbnail.jpg"
 
-    # Get path of thumbnail
-    ext="${img##*.}"
-    base="${img%.*}"
-    thumb_path="${base}_thumbnail.${ext}"
+        # Check if thumbnail exists; if not, use the high res path
+        if [ ! -f "$thumb_path" ]; then
+            thumb_path="$img"
+        fi
 
-    # Check if thumbnail exists; if not, use the high res path
-    if [ ! -f "$thumb_path" ]; then
-        thumb_path="$img"
-    fi
+        # Strip the serve location
+        final_src="${img#$SERVE_LOCATION}"
+        final_thumb="${thumb_path#$SERVE_LOCATION}"
 
-    # Use jq to append the new object to our temporary JSON list
-    # See jq documentation: https://jqlang.org/manual/#:~:text=on%20modules%20below.-,%2D%2Darg,-name%20value%3A
-    jq --arg src "${img#$SERVE_LOCATION}" \
-        --arg thumb "${thumb_path#$SERVE_LOCATION}" \
-        '. += [{ "src": $src, "thumb": $thumb, "title": "", "desc": "" }]' \
-        "$TEMP_JSON" > "${TEMP_JSON}.tmp" && mv "${TEMP_JSON}.tmp" "$TEMP_JSON"
+        # Output the JSON object
+        printf '{"src":"%s","thumb":"%s","title":"","desc":""}\n' "$final_src" "$final_thumb"
+    done
+}
 
-done
-
-# Overwrite the original config with the new generated list
-mv "$TEMP_JSON" "$CONFIG_FILE"
+# Call the function and pipe it into jq
+# The -s (slurp) option concats the objects into an array.
+generate_json_stream | jq -s '.' > "$CONFIG_FILE"
 
 echo "Gallery configuration updated in $CONFIG_FILE"
