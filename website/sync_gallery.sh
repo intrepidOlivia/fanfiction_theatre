@@ -32,7 +32,7 @@ get_mtime() {
 
 # This function outputs a JSON object string for every file in the IMAGE_DIR directory
 generate_json_stream() {
-    find "$IMAGE_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) ! -name "*_thumbnail.jpg" | while read -r img; do
+    find "$IMAGE_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" \) ! -name "*_thumbnail.jpg" | while read -r img; do
         # Get timestamp
         time=$(get_mtime "$img")
 
