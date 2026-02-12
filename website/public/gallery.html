@@ -77,7 +77,7 @@
 
         function openDialog(idx, hash) {
             const img = images[idx];
-            window.location.hash = hash;
+            history.replaceState(null, "", `#${hash}`);
             dialogImg.src = img.src;
             dialogImg.alt = img.title;
             dialogTitle.textContent = img.title;
@@ -88,7 +88,8 @@
 
         function closeDialog() {
             dialogOverlay.style.display = 'none';
-            window.location.hash = '';
+            const urlBase = window.location.href.split('#')[0];
+            history.replaceState(null, "", urlBase);
             gallery.removeEventListener('click', dialogCloseListener);
         }
 
