@@ -11,9 +11,26 @@ if [ ! -f "$CONFIG_FILE" ] || [ ! -s "$CONFIG_FILE" ]; then
     echo "[]" > "$CONFIG_FILE"
 fi
 
+# Retrieve file modified time based on which OS you're using
+get_mtime() {
+    local file="$1" # $1 is the first argument sent to the function
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # MacOS syntax
+        stat -f "%m" "$file"
+    else
+        # Linux syntax 
+        stat -c "%Y" "$file"
+    fi 
+    # Why are the Mac and Linux syntaxes so similar but different? Fuck you, that's why
+    # Windows users must use a Linux shell, sorry
+}
+
 # This function outputs a JSON object string for every file in the IMAGE_DIR directory
 generate_json_stream() {
     find "$IMAGE_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) ! -name "*_thumbnail.jpg" | while read -r img; do
+        # Get timestamp
+        time=$(get_mtime "$img")
 
         # Get paths
         ext="${img##*.}"
@@ -30,12 +47,12 @@ generate_json_stream() {
         final_thumb="${thumb_path#$SERVE_LOCATION}"
 
         # Output the JSON object
-        printf '{"src":"%s","thumb":"%s","title":"","desc":""}\n' "$final_src" "$final_thumb"
+        printf '{"src":"%s","thumb":"%s","title":"","desc":"","mtime":%s}\n' "$final_src" "$final_thumb" "$time"
     done
 }
 
 # Call the function and pipe it into jq
 # The -s (slurp) option concats the objects into an array.
-generate_json_stream | jq -s '.' > "$CONFIG_FILE"
+generate_json_stream | jq -s 'sort_by(.mtime) | reverse | map(del(.mtime))' > "$CONFIG_FILE"
 
 echo "Gallery configuration updated in $CONFIG_FILE"
