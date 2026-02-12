@@ -1,5 +1,9 @@
 #!/bin/bash
-# This script iterates through all images in public/assets/gallery and writes gallery_config to reflect the current set of images.
+# Run this script after adding new images to the gallery folder.
+
+# This script iterates through all images in public/assets/gallery 
+# and writes gallery_config.json to reflect the current set of images.
+
 # Note that the jq library must be installed to run this script.
 
 CONFIG_FILE="./public/gallery_config.json"
