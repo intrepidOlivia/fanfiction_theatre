@@ -51,8 +51,24 @@ generate_json_stream() {
     done
 }
 
-# Call the function and pipe it into jq
-# The -s (slurp) option concats the objects into an array.
-generate_json_stream | jq -s 'sort_by(.mtime) | reverse | map(del(.mtime))' > "$CONFIG_FILE"
+# JQ Documentation: https://jqlang.org/manual/
+# Calls the generate_json_stream function and pipes it into jq
+# Also retrieves the previous title and description and perpetuates them.
+generate_json_stream | jq -s \
+    --argjson existing "$(cat "$CONFIG_FILE")" '
+    ($existing | INDEX(.src)) as $old_data |
+    map(
+        .src as $current_src |
+        . + {
+            "title": ($old_data[$current_src].title // ""),
+            "desc": ($old_data[$current_src].desc // "")
+        }
+    )
+    | sort_by(.mtime)
+    | reverse
+    | map(del(.mtime))    
+
+    ' > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+
 
 echo "Gallery configuration updated in $CONFIG_FILE"
