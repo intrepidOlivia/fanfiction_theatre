@@ -26,27 +26,30 @@ javascript:(function() {
     }
 
     function retrieveAndSendText(ficDocument) {
-        const FIC_SOURCE_CONTAINER_MAP = {        
-            'fanfiction.net': '#storytextp',
-            'archiveofourown.org': '#workskin',
-            'wattpad.com': '.story-body-type',
+        const FIC_SOURCE_CONTAINERS_MAP = {        
+            'fanfiction.net': ['#storytextp'],
+            'archiveofourown.org': ['#workskin'],
+            'wattpad.com': ['.story-header', '.story-body-type'],
         };  
-
-        let selector = null; 
+        
+        let selectors;
         const href = location.href;  
-
-        Object.keys(FIC_SOURCE_CONTAINER_MAP).forEach(key => {        
+        Object.keys(FIC_SOURCE_CONTAINERS_MAP).forEach(key => {        
             if (href.includes(key)) {        
-                selector = FIC_SOURCE_CONTAINER_MAP[key];  
+                selectors = FIC_SOURCE_CONTAINERS_MAP[key];  
             }    
         });
-        if (selector == null) {        
-            window.alert('Could not find proper selector for fic source. Please contact Misha for help.');  
-            return;  
-        }
+        let ficText = '';
+        selectors.forEach(selector => {
+            if (selector == null) {        
+                window.alert('Could not find proper selector for fic source. Please contact Misha for help.');  
+                return;  
+            }
 
-        const container = ficDocument.querySelector(selector);  
-        const ficText = container.innerHTML;  
+            const container = ficDocument.querySelector(selector);  
+            ficText += container.innerHTML;  
+        });
+        
         navigator.clipboard.writeText(ficText);  
         submitToReader(ficText);
     }
@@ -54,7 +57,6 @@ javascript:(function() {
     if (location.href.includes('wattpad.com')) {
         const iframe = document.createElement('iframe');
         iframe.src = getAmpLink(window.location.href);
-        console.log('iframe.src:', iframe.src);
         document.body.appendChild(iframe);
 
         iframe.onload = () => {
